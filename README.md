@@ -39,6 +39,14 @@ Windows smoke test:
 - GitHub Actions workflow: `.github/workflows/ci.yml`
 - Runner target: Depot-hosted runner label `depot-ubuntu-24.04`
 
+## Claude PR Runner
+- Workflow: `.github/workflows/claude-pr-runner.yml`
+- Trigger: mention `@claude` in PR comments/reviews (or run manually via `workflow_dispatch`)
+- Runner target: Depot-hosted runner label `depot-ubuntu-24.04`
+- Configure one auth secret:
+  - `ANTHROPIC_API_KEY` (API key mode), or
+  - `CLAUDE_CODE_OAUTH_TOKEN` (OAuth mode)
+
 Supported tool IDs:
 - `codex`
 - `claude`
