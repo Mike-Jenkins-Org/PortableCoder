@@ -1,0 +1,49 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  portable-ci:
+    runs-on: depot-ubuntu-24.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Validate launcher syntax
+        run: node --check scripts/pcoder.cjs
+
+      - name: Onboarding smoke
+        run: |
+          scripts/pcoder setup --init
+          scripts/pcoder setup --codex-auth oauth --claude-auth oauth --windows-mode linux-portable --sync-back true
+          scripts/pcoder auth status
+
+      - name: Doctor check with stubbed runners
+        env:
+          PCODER_CODEX_CMD: /bin/echo
+          PCODER_CLAUDE_CMD: /bin/echo
+        run: scripts/pcoder doctor
+
+      - name: API-mode host-native launch checks
+        env:
+          OPENAI_API_KEY: ci-dummy-openai
+          ANTHROPIC_AUTH_TOKEN: ci-dummy-anthropic
+          PCODER_CODEX_CMD: /bin/echo
+          PCODER_CLAUDE_CMD: /bin/echo
+        run: |
+          scripts/pcoder setup --codex-auth api --claude-auth api
+          scripts/pcoder run codex --mode host-native -- --version
+          scripts/pcoder run claude --mode host-native -- --version

@@ -35,6 +35,10 @@ Auth management:
 Windows smoke test:
 - `scripts/runtime/windows/smoke-check.cmd`
 
+## CI
+- GitHub Actions workflow: `.github/workflows/ci.yml`
+- Runner target: Depot-hosted runner label `depot-ubuntu-24.04`
+
 Supported tool IDs:
 - `codex`
 - `claude`
