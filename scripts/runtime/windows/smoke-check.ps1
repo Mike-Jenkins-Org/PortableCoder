@@ -1,8 +1,8 @@
-$ErrorActionPreference = 'Stop'
-
 param(
   [switch]$SkipToolChecks
 )
+
+$ErrorActionPreference = 'Stop'
 
 $repoRoot = (Resolve-Path (Join-Path $PSScriptRoot '..\..\..')).Path
 $stateDir = Join-Path $repoRoot 'state\vm'
