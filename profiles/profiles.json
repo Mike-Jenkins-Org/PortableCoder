@@ -1,0 +1,22 @@
+{
+  "default_profile": "openai",
+  "profiles": {
+    "openai": {
+      "description": "OpenAI/Codex profile (external env injection only)",
+      "env_files": [],
+      "required_env": [
+        "OPENAI_API_KEY"
+      ]
+    },
+    "anthropic": {
+      "description": "Claude/Anthropic profile (external env injection only)",
+      "env_files": [],
+      "required_env_any": [
+        [
+          "ANTHROPIC_AUTH_TOKEN",
+          "ANTHROPIC_API_KEY"
+        ]
+      ]
+    }
+  }
+}

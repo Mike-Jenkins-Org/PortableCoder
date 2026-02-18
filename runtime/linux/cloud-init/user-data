@@ -1,0 +1,8 @@
+#cloud-config
+users:
+  - name: portable
+    sudo: ALL=(ALL) NOPASSWD:ALL
+    shell: /bin/bash
+ssh_pwauth: false
+
+# Placeholder for VM provisioning during image bake.

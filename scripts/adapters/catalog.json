@@ -1,0 +1,14 @@
+{
+  "codex": {
+    "display_name": "Codex CLI",
+    "default_profile": "openai",
+    "command_env": "PCODER_CODEX_CMD",
+    "candidate_commands": ["codex"]
+  },
+  "claude": {
+    "display_name": "Claude Code CLI",
+    "default_profile": "anthropic",
+    "command_env": "PCODER_CLAUDE_CMD",
+    "candidate_commands": ["claude"]
+  }
+}
