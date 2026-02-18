@@ -70,6 +70,7 @@ function printHelp() {
   console.log('  pcoder auth login <codex|claude> [--mode <linux-portable|host-native>]');
   console.log('  pcoder auth logout <codex|claude> [--mode <linux-portable|host-native>]');
   console.log('  pcoder runtime probe');
+  console.log('  pcoder runtime bootstrap [--force]');
   console.log('  pcoder run <tool> [--mode <linux-portable|host-native>] [--profile <name>] [--project <path>] [--no-sync-back] [-- <tool args...>]');
   console.log('');
   console.log(`Tools: ${toolNames.join(', ')}`);
@@ -350,10 +351,18 @@ function commandAuth(args) {
 
 function commandRuntime(args) {
   const action = args[0];
-  if (action !== 'probe') {
-    fail('Usage: pcoder runtime probe');
+  if (!action || action === 'probe') {
+    commandRuntimeProbe();
+    return;
   }
+  if (action === 'bootstrap' || action === 'install') {
+    commandRuntimeBootstrap(args.slice(1));
+    return;
+  }
+  fail('Usage: pcoder runtime <probe|bootstrap>');
+}
 
+function commandRuntimeProbe() {
   const probes = [
     { key: 'bundled-qemu', cmd: path.join(repoRoot, 'runtime', 'qemu', 'qemu-system-x86_64.exe') },
     { key: 'wsl', cmd: 'wsl' },
@@ -374,6 +383,38 @@ function commandRuntime(args) {
   if (process.platform === 'win32') {
     console.log('vm_accel_policy=try_whpx_then_fallback_tcg');
   }
+}
+
+function commandRuntimeBootstrap(args) {
+  if (process.platform !== 'win32') {
+    fail('runtime bootstrap is currently implemented for Windows hosts only.');
+  }
+
+  const supported = new Set(['--force']);
+  for (const arg of args) {
+    if (!supported.has(arg)) {
+      fail(`Unknown runtime bootstrap flag: ${arg}`);
+    }
+  }
+
+  const bootstrapScript = path.join(repoRoot, 'scripts', 'runtime', 'windows', 'bootstrap-runtime.cmd');
+  if (!fs.existsSync(bootstrapScript)) {
+    fail(`Missing runtime bootstrap script: ${bootstrapScript}`);
+  }
+
+  const cmdArgs = ['/c', bootstrapScript];
+  if (args.includes('--force')) {
+    cmdArgs.push('--force');
+  }
+
+  const result = cp.spawnSync('cmd.exe', cmdArgs, {
+    cwd: repoRoot,
+    stdio: 'inherit'
+  });
+  if (result.error) {
+    fail(`Failed to execute runtime bootstrap script: ${result.error.message}`);
+  }
+  process.exitCode = typeof result.status === 'number' ? result.status : 1;
 }
 
 function recommendRuntimeBackend(platform, probes) {

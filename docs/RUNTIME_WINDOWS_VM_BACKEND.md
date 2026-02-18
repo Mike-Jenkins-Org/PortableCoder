@@ -50,15 +50,17 @@ PortableCoder/
 ```
 
 ## Launch Model
-1. Host launcher checks runtime assets (`runtime/qemu/*`, `runtime/linux/images/*`).
-2. Launcher starts QEMU guest with:
+1. Runtime assets are installed via `scripts/runtime/windows/bootstrap-runtime.cmd`.
+2. Host launcher checks runtime assets (`runtime/qemu/*`, `runtime/linux/images/*`).
+3. Launcher starts QEMU guest with:
    - acceleration attempt: `whpx` first
    - automatic fallback: `tcg` if acceleration is unavailable/fails
    - fixed SSH forwarding from random available local port
+   - NoCloud-Net cloud-init seed served from host for deterministic guest user/key setup
    - state/log outputs under `state/vm/`
-3. `pcoder run codex|claude --mode linux-portable` syncs project to guest via SCP, executes via SSH, then syncs back.
-4. Stop flow gracefully shuts down guest and cleans stale PID metadata.
-5. `scripts/runtime/windows/smoke-check.cmd` validates artifacts, VM boot mode, SSH readiness, and guest tool availability.
+4. `pcoder run codex|claude --mode linux-portable` syncs project to guest via SCP, executes via SSH, then syncs back.
+5. Stop flow gracefully shuts down guest and cleans stale PID metadata.
+6. `scripts/runtime/windows/smoke-check.cmd` validates artifacts, VM boot mode, SSH readiness, and guest tool availability.
 
 ## Host Compatibility Notes
 - Windows 11 / Server 2022 / Server 2025: target hosts.

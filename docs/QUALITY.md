@@ -12,6 +12,7 @@ last_verified: 2026-02-18
 
 ## v0.1 Quality Gates
 - Bootstrap script creates complete expected directory tree.
+- Windows runtime bootstrap installs required VM artifacts (`qemu-system-x86_64.exe`, `ubuntu.qcow2`, SSH key pair).
 - `pcoder doctor` detects missing runtime binaries and credentials cleanly.
 - Tool launch works for at least Codex and Claude in same bundle.
 - Windows launcher path handling works with spaces in project paths.

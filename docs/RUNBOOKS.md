@@ -7,7 +7,11 @@ last_verified: 2026-02-18
 
 ## Project Bootstrap
 1. Clone/copy repository to target machine.
-2. Run bootstrap script to populate `runtime/` and `apps/`.
+2. On Windows, run `scripts/runtime/windows/bootstrap-runtime.cmd` to populate VM runtime assets.
+   - Optional URL overrides:
+     - `PCODER_QEMU_INSTALLER_URL`
+     - `PCODER_QEMU_SHA512_URL`
+     - `PCODER_UBUNTU_IMAGE_URL`
 3. Run first-time onboarding: `pcoder setup --init`.
 4. Set auth mode per tool:
    - `pcoder setup --codex-auth oauth --claude-auth oauth`
@@ -26,6 +30,7 @@ export ANTHROPIC_AUTH_TOKEN=replace_me
 - `linux-portable` (primary on Windows): launch tools inside bundled Linux runtime.
 - `linux-wsl` (optional): use host WSL when present.
 - `host-native` (dev fallback): launch available local tool binaries.
+- Runtime bootstrap command: `pcoder runtime bootstrap` (Windows only).
 
 Current implementation note:
 - `linux-portable` execution path is currently implemented for Windows hosts.
@@ -43,6 +48,7 @@ Backend spec:
 - Windows Server 2016: target (with software virtualization fallback accepted)
 
 ## VM Lifecycle Scripts
+- Runtime bootstrap: `scripts/runtime/windows/bootstrap-runtime.cmd`
 - Start VM: `scripts/runtime/windows/start-vm.cmd`
 - Start VM implementation: `scripts/runtime/windows/start-vm.ps1`
 - Stop VM: `scripts/runtime/windows/stop-vm.cmd`

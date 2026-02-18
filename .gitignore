@@ -17,3 +17,7 @@ state/vm/*.pid
 state/vm/*.tmp
 state/vm/qemu-mode.txt
 state/vm/ssh-port.txt
+state/vm/cloud-init-port.txt
+state/vm/cloud-init/**
+state/tmp/**
+!state/tmp/.gitkeep

@@ -8,6 +8,7 @@ $repoRoot = (Resolve-Path (Join-Path $PSScriptRoot '..\..\..')).Path
 $stateDir = Join-Path $repoRoot 'state\vm'
 $startCmd = Join-Path $PSScriptRoot 'start-vm.cmd'
 $stopCmd = Join-Path $PSScriptRoot 'stop-vm.cmd'
+$bootstrapCmd = Join-Path $PSScriptRoot 'bootstrap-runtime.cmd'
 $qemuExe = Join-Path $repoRoot 'runtime\qemu\qemu-system-x86_64.exe'
 $vmImage = Join-Path $repoRoot 'runtime\linux\images\ubuntu.qcow2'
 $sshKey = Join-Path $repoRoot 'runtime\linux\ssh\id_ed25519'
@@ -91,6 +92,7 @@ function Get-ExistingVmProcess {
 Add-Check -Name 'artifact:qemu' -Ok (Test-Path $qemuExe) -Detail $qemuExe
 Add-Check -Name 'artifact:image' -Ok (Test-Path $vmImage) -Detail $vmImage
 Add-Check -Name 'artifact:ssh-key' -Ok (Test-Path $sshKey) -Detail $sshKey
+Add-Check -Name 'script:bootstrap-runtime' -Ok (Test-Path $bootstrapCmd) -Detail $bootstrapCmd
 Add-Check -Name 'script:start-vm' -Ok (Test-Path $startCmd) -Detail $startCmd
 Add-Check -Name 'script:stop-vm' -Ok (Test-Path $stopCmd) -Detail $stopCmd
 
@@ -111,6 +113,7 @@ if ($fatalArtifactFailure) {
   }
   Write-Host ''
   Write-Host 'Smoke check aborted: required artifacts are missing.'
+  Write-Host 'Run: scripts\runtime\windows\bootstrap-runtime.cmd'
   exit 2
 }
 

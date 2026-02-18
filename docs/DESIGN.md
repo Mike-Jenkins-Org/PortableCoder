@@ -23,6 +23,7 @@ last_verified: 2026-02-18
 - `pcoder doctor` — verify runtime and provider readiness
 - `pcoder list-tools` — show installed/available adapters
 - `pcoder runtime probe` — detect available Linux runtime backends on host
+- `pcoder runtime bootstrap` — download/install Windows VM runtime payload
 - `pcoder setup --init` — first-run onboarding settings
 - `pcoder setup --codex-auth <oauth|api> --claude-auth <oauth|api>` — configure auth modes
 - `pcoder auth status|login|logout <tool>` — manage auth sessions

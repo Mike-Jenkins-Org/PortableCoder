@@ -38,6 +38,7 @@ Initial user target providers/tools:
 - [x] (2026-02-18) Implement `pcoder run --mode linux-portable` flow (VM start, SSH execution, SCP sync)
 - [x] (2026-02-18) Implement onboarding/settings and dual auth mode support (`pcoder setup`, `pcoder auth`, persistent portable state)
 - [x] (2026-02-18) Add Windows smoke checklist scripts for VM boot/SSH/guest tool validation
+- [x] (2026-02-18) Add Windows runtime bootstrap installer (`bootstrap-runtime`) to fetch QEMU/image and generate SSH keys
 - [ ] (2026-02-18) Validate Codex + Claude launches in one portable layout
 - [ ] (2026-02-18) Document setup/runbook and close out EP-001
 

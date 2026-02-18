@@ -7,4 +7,5 @@ Planned contents:
 - launcher helpers
 - checksums and source manifests
 
-Do not commit large binary runtime payloads directly until packaging policy is finalized.
+For source-control hygiene, large runtime binaries are bootstrap-installed on target hosts
+or attached to release artifacts, not committed directly to git.

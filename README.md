@@ -14,14 +14,17 @@ Portable multi-provider coding CLI launcher with harness-first planning.
 - VM policy is try hardware acceleration first, then auto fallback to portable software mode.
 
 ## Quick Start
-1. Run onboarding once: `scripts/pcoder setup --init`.
-2. Choose auth modes as needed:
+1. Bootstrap runtime payload (Windows): `scripts/runtime/windows/bootstrap-runtime.cmd`
+   - Optional launcher path: `scripts/pcoder runtime bootstrap`
+   - Optional URL overrides: `PCODER_QEMU_INSTALLER_URL`, `PCODER_QEMU_SHA512_URL`, `PCODER_UBUNTU_IMAGE_URL`
+2. Run onboarding once: `scripts/pcoder setup --init`.
+3. Choose auth modes as needed:
    - OAuth: `scripts/pcoder setup --codex-auth oauth --claude-auth oauth`
    - API keys: `scripts/pcoder setup --codex-auth api --claude-auth api`
-3. Inject required env vars only for API mode (`OPENAI_API_KEY` and/or `ANTHROPIC_AUTH_TOKEN`).
-4. Run `scripts/pcoder doctor`.
-5. Launch in VM mode (Windows): `scripts/pcoder run <tool> --mode linux-portable`.
-6. Use `--no-sync-back` if you do not want VM changes copied back automatically.
+4. Inject required env vars only for API mode (`OPENAI_API_KEY` and/or `ANTHROPIC_AUTH_TOKEN`).
+5. Run `scripts/pcoder doctor`.
+6. Launch in VM mode (Windows): `scripts/pcoder run <tool> --mode linux-portable`.
+7. Use `--no-sync-back` if you do not want VM changes copied back automatically.
 
 On Windows, `pcoder run` defaults to `--mode linux-portable`.
 
