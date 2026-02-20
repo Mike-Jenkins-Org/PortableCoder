@@ -44,6 +44,7 @@ Initial user target providers/tools:
 - [x] (2026-02-20) Fix Windows VM start cloud-init port selection to fallback when default range is exhausted
 - [x] (2026-02-20) Add Windows helper script to patch legacy `start-vm.ps1` cloud-init port fallback on existing local clones
 - [x] (2026-02-20) Make Windows smoke SSH probe tolerate transient native-command connection errors during VM boot
+- [x] (2026-02-20) Increase VM SSH readiness timeouts and diagnostics for slow first-boot cloud images
 - [ ] (2026-02-18) Document setup/runbook and close out EP-001
 
 ## Context and Orientation
@@ -123,6 +124,7 @@ Acceptance criteria for EP-001:
 - 2026-02-20: PowerShell `Start-Process -ArgumentList` rejected empty elements, so `ssh-keygen -N` required explicit empty-string handling.
 - 2026-02-20: Some Windows hosts had no free ports in `38080-38120`; cloud-init server startup now needs fallback port allocation.
 - 2026-02-20: On some PowerShell environments, transient `ssh` connection failures surfaced as exceptions; smoke probing must retry instead of aborting early.
+- 2026-02-20: First boot SSH readiness on some hosts can exceed 120 seconds, so timeout windows need to be configurable and longer by default.
 
 ## Decision Log
 - 2026-02-18: Adopt harness-first planning model before implementation.

@@ -1011,7 +1011,7 @@ function runInLinuxPortableVm(options) {
     sshPort,
     sshUser,
     sshKeyPath,
-    timeoutSeconds: 120
+    timeoutSeconds: resolveVmSshTimeoutSeconds(mergedEnv)
   });
 
   const remoteRoot = mergedEnv.PCODER_VM_PROJECTS_ROOT || '/home/portable/projects';
@@ -1199,6 +1199,18 @@ function waitForVmSshReady(options) {
   }
 
   fail(`Timed out waiting for VM SSH readiness after ${timeoutSeconds}s.`);
+}
+
+function resolveVmSshTimeoutSeconds(env) {
+  const raw = env.PCODER_VM_SSH_TIMEOUT_SECONDS;
+  if (!raw) {
+    return 300;
+  }
+  const parsed = Number.parseInt(String(raw), 10);
+  if (!Number.isFinite(parsed) || parsed < 10 || parsed > 3600) {
+    fail('PCODER_VM_SSH_TIMEOUT_SECONDS must be an integer between 10 and 3600.');
+  }
+  return parsed;
 }
 
 function resolveVmToolRunner(tool, adapter, env) {

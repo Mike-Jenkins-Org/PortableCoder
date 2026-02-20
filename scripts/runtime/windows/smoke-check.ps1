@@ -1,5 +1,6 @@
 param(
-  [switch]$SkipToolChecks
+  [switch]$SkipToolChecks,
+  [int]$SshReadyTimeoutSeconds = 300
 )
 
 $ErrorActionPreference = 'Stop'
@@ -53,6 +54,7 @@ function Invoke-Ssh {
   param(
     [string]$SshExe,
     [string]$SshPort,
+    [string]$SshUser,
     [string]$Script
   )
 
@@ -63,7 +65,7 @@ function Invoke-Ssh {
     '-o', 'StrictHostKeyChecking=no',
     '-o', 'UserKnownHostsFile=NUL',
     '-o', 'ConnectTimeout=5',
-    'portable@127.0.0.1',
+    "$SshUser@127.0.0.1",
     'bash', '-lc', $Script
   )
 
@@ -185,25 +187,38 @@ try {
     throw 'No SSH client found.'
   }
   Add-Check -Name 'ssh:client' -Ok $true -Detail $sshExe
+  $sshUser = if ($env:PCODER_VM_USER) { $env:PCODER_VM_USER } else { 'portable' }
+  Add-Check -Name 'ssh:user' -Ok $true -Detail $sshUser
 
   $sshReady = $false
-  for ($attempt = 1; $attempt -le 60; $attempt++) {
-    $probe = Invoke-Ssh -SshExe $sshExe -SshPort $sshPort -Script 'echo vm-ready'
+  $pollIntervalSeconds = 2
+  $maxAttempts = [Math]::Max([Math]::Ceiling($SshReadyTimeoutSeconds / $pollIntervalSeconds), 1)
+  $lastProbeOutput = ''
+  for ($attempt = 1; $attempt -le $maxAttempts; $attempt++) {
+    $probe = Invoke-Ssh -SshExe $sshExe -SshPort $sshPort -SshUser $sshUser -Script 'echo vm-ready'
+    if ($probe.output) {
+      $lastProbeOutput = $probe.output.Trim()
+    }
     if ($probe.status -eq 0 -and $probe.output -match 'vm-ready') {
       $sshReady = $true
       Add-Check -Name 'ssh:ready' -Ok $true -Detail "attempt=$attempt"
       break
     }
-    Start-Sleep -Seconds 2
+    Start-Sleep -Seconds $pollIntervalSeconds
   }
   if (-not $sshReady) {
-    Add-Check -Name 'ssh:ready' -Ok $false -Detail 'timeout'
-    throw 'Timed out waiting for VM SSH readiness.'
+    Add-Check -Name 'ssh:ready' -Ok $false -Detail "timeout (${SshReadyTimeoutSeconds}s)"
+    $lastDetail = $lastProbeOutput
+    if (-not $lastDetail) {
+      $lastDetail = '(no ssh output)'
+    }
+    $lastDetail = $lastDetail -replace '\r?\n', ' '
+    throw "Timed out waiting for VM SSH readiness after ${SshReadyTimeoutSeconds}s. Last output: $lastDetail"
   }
 
   if (-not $SkipToolChecks) {
     foreach ($tool in @('codex', 'claude')) {
-      $hasTool = Invoke-Ssh -SshExe $sshExe -SshPort $sshPort -Script "command -v $tool >/dev/null 2>&1"
+      $hasTool = Invoke-Ssh -SshExe $sshExe -SshPort $sshPort -SshUser $sshUser -Script "command -v $tool >/dev/null 2>&1"
       $toolFound = $hasTool.status -eq 0
       $toolDetail = 'missing'
       if ($toolFound) {
@@ -212,7 +227,7 @@ try {
       Add-Check -Name "guest:$tool:command" -Ok $toolFound -Detail $toolDetail
 
       if ($toolFound) {
-        $version = Invoke-Ssh -SshExe $sshExe -SshPort $sshPort -Script "$tool --version"
+        $version = Invoke-Ssh -SshExe $sshExe -SshPort $sshPort -SshUser $sshUser -Script "$tool --version"
         $versionOk = $version.status -eq 0
         $versionDetail = 'ok'
         if (-not $versionOk) {
