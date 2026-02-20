@@ -46,6 +46,7 @@ Initial user target providers/tools:
 - [x] (2026-02-20) Make Windows smoke SSH probe tolerate transient native-command connection errors during VM boot
 - [x] (2026-02-20) Increase VM SSH readiness timeouts and diagnostics for slow first-boot cloud images
 - [x] (2026-02-20) Fix Windows smoke SSH probe command invocation so readiness check validates `echo vm-ready` output correctly
+- [x] (2026-02-20) Update Windows smoke SSH probe to pass remote commands directly (avoids PowerShell stdin encoding edge cases)
 - [ ] (2026-02-18) Document setup/runbook and close out EP-001
 
 ## Context and Orientation
@@ -127,6 +128,7 @@ Acceptance criteria for EP-001:
 - 2026-02-20: On some PowerShell environments, transient `ssh` connection failures surfaced as exceptions; smoke probing must retry instead of aborting early.
 - 2026-02-20: First boot SSH readiness on some hosts can exceed 120 seconds, so timeout windows need to be configurable and longer by default.
 - 2026-02-20: Passing `ssh ... bash -lc <script>` as split args can drop expected output semantics; piping script content to `bash -s` is safer for deterministic probing.
+- 2026-02-20: Piping probe scripts into native `ssh` from Windows PowerShell can hit stdin encoding edge cases; direct remote command args are more reliable.
 
 ## Decision Log
 - 2026-02-18: Adopt harness-first planning model before implementation.
