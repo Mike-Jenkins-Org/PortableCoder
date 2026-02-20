@@ -69,17 +69,36 @@ function Invoke-Ssh {
     $Script
   )
 
+  $previousErrorAction = $ErrorActionPreference
   try {
-    $output = & $SshExe @args 2>&1
+    # Native ssh writes host-key notices to stderr; keep stderr non-terminating for probe loops.
+    $ErrorActionPreference = 'Continue'
+    $rawOutput = & $SshExe @args 2>&1
+    $exitCode = $LASTEXITCODE
+
+    $normalized = @()
+    foreach ($entry in @($rawOutput)) {
+      if ($null -eq $entry) {
+        continue
+      }
+      if ($entry -is [System.Management.Automation.ErrorRecord]) {
+        $normalized += $entry.ToString()
+      } else {
+        $normalized += [string]$entry
+      }
+    }
+
     return @{
-      status = $LASTEXITCODE
-      output = [string]::Join("`n", $output)
+      status = $exitCode
+      output = [string]::Join("`n", $normalized)
     }
   } catch {
     return @{
       status = 1
       output = $_.Exception.Message
     }
+  } finally {
+    $ErrorActionPreference = $previousErrorAction
   }
 }
 
