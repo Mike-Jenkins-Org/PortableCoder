@@ -66,11 +66,11 @@ function Invoke-Ssh {
     '-o', 'UserKnownHostsFile=NUL',
     '-o', 'ConnectTimeout=5',
     "$SshUser@127.0.0.1",
-    'bash', '-lc', $Script
+    'bash', '-s'
   )
 
   try {
-    $output = & $SshExe @args 2>&1
+    $output = $Script | & $SshExe @args 2>&1
     return @{
       status = $LASTEXITCODE
       output = [string]::Join("`n", $output)
