@@ -51,6 +51,17 @@ function Get-FreeTcpPort {
   throw "No free TCP port found in range $StartPort-$EndPort"
 }
 
+function Get-EphemeralTcpPort {
+  $listener = [System.Net.Sockets.TcpListener]::new([System.Net.IPAddress]::Loopback, 0)
+  try {
+    $listener.Start()
+    $endpoint = [System.Net.IPEndPoint]$listener.LocalEndpoint
+    return $endpoint.Port
+  } finally {
+    try { $listener.Stop() } catch {}
+  }
+}
+
 function Stop-CloudInitServer {
   if (Test-Path $cloudInitPidFile) {
     $raw = Get-Content $cloudInitPidFile -ErrorAction SilentlyContinue | Select-Object -First 1
@@ -188,7 +199,13 @@ if ($requestedPortRaw) {
   $sshPort = Get-FreeTcpPort -StartPort 2222 -EndPort 2299
 }
 
-$cloudInitPort = Get-FreeTcpPort -StartPort 38080 -EndPort 38120
+$cloudInitPort = 0
+try {
+  $cloudInitPort = Get-FreeTcpPort -StartPort 38080 -EndPort 38120
+} catch {
+  $cloudInitPort = Get-EphemeralTcpPort
+  Write-Host "Preferred cloud-init port range 38080-38120 unavailable; using ephemeral port $cloudInitPort."
+}
 $guestUser = if ($env:PCODER_VM_USER) { $env:PCODER_VM_USER } else { 'portable' }
 $pubKeyValue = (Get-Content $sshPublicKey -Raw).Trim()
 Write-CloudInitSeed -PublicKey $pubKeyValue -UserName $guestUser

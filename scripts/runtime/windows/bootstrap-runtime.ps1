@@ -168,7 +168,8 @@ if (-not (Test-Path $sshPrivate) -or -not (Test-Path $sshPublic)) {
     throw "Missing ssh-keygen in PATH. Install OpenSSH client feature or set up runtime/linux/ssh/id_ed25519 manually."
   }
 
-  $genArgs = @('-t', 'ed25519', '-N', '', '-f', $sshPrivate, '-C', 'portable-coder')
+  # Start-Process rejects empty ArgumentList elements, so pass -N "" in one string.
+  $genArgs = "-t ed25519 -N `"`" -f `"$sshPrivate`" -C portable-coder"
   $keyProc = Start-Process -FilePath $sshKeygen -ArgumentList $genArgs -PassThru -Wait -NoNewWindow
   if ($keyProc.ExitCode -ne 0) {
     throw "ssh-keygen failed with exit code $($keyProc.ExitCode)"

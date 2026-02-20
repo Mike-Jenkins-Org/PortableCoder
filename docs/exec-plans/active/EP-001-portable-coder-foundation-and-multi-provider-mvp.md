@@ -1,6 +1,6 @@
 ---
 owner: Mike Jenkins
-last_verified: 2026-02-18
+last_verified: 2026-02-20
 ---
 
 # EP-001 - Portable Coder Foundation and Multi-Provider MVP
@@ -39,7 +39,10 @@ Initial user target providers/tools:
 - [x] (2026-02-18) Implement onboarding/settings and dual auth mode support (`pcoder setup`, `pcoder auth`, persistent portable state)
 - [x] (2026-02-18) Add Windows smoke checklist scripts for VM boot/SSH/guest tool validation
 - [x] (2026-02-18) Add Windows runtime bootstrap installer (`bootstrap-runtime`) to fetch QEMU/image and generate SSH keys
-- [ ] (2026-02-18) Validate Codex + Claude launches in one portable layout
+- [x] (2026-02-20) Validate Codex + Claude launches in one portable layout
+- [x] (2026-02-20) Fix Windows bootstrap `ssh-keygen` argument handling for empty-passphrase key generation
+- [x] (2026-02-20) Fix Windows VM start cloud-init port selection to fallback when default range is exhausted
+- [x] (2026-02-20) Add Windows helper script to patch legacy `start-vm.ps1` cloud-init port fallback on existing local clones
 - [ ] (2026-02-18) Document setup/runbook and close out EP-001
 
 ## Context and Orientation
@@ -114,6 +117,10 @@ Acceptance criteria for EP-001:
 - 2026-02-18: MVP project handoff uses SCP sync in/out of VM instead of shared-folder mounts to reduce host dependency assumptions.
 - 2026-02-18: OAuth + API dual-mode support required explicit onboarding state and per-tool auth-mode persistence.
 - 2026-02-18: Profile resolution needed per-tool default fallback to avoid cross-provider env validation errors in API mode.
+- 2026-02-20: Host-native and stubbed CI-equivalent validation passed on Linux host for Codex + Claude launch flows.
+- 2026-02-20: Windows VM smoke validation remains target-specific and is still tracked separately from Linux-host checks.
+- 2026-02-20: PowerShell `Start-Process -ArgumentList` rejected empty elements, so `ssh-keygen -N` required explicit empty-string handling.
+- 2026-02-20: Some Windows hosts had no free ports in `38080-38120`; cloud-init server startup now needs fallback port allocation.
 
 ## Decision Log
 - 2026-02-18: Adopt harness-first planning model before implementation.

@@ -1,6 +1,6 @@
 ---
 owner: Mike Jenkins
-last_verified: 2026-02-18
+last_verified: 2026-02-20
 ---
 
 # Runbooks
@@ -73,6 +73,25 @@ Backend spec:
 - macOS/Linux: launch via shell wrapper.
 - Validate project path argument handling with spaces.
 - Validate selected runtime mode is reflected in diagnostics output.
+
+## Local Preflight (Before Windows VM Smoke)
+Use this deterministic preflight to validate launcher wiring before VM testing. Windows VM smoke remains `scripts/runtime/windows/smoke-check.cmd`.
+
+1. Syntax + onboarding checks:
+```bash
+node --check scripts/pcoder.cjs
+scripts/pcoder setup --init --show
+```
+2. Doctor with stubbed runners:
+```bash
+PCODER_CODEX_CMD=node PCODER_CLAUDE_CMD=node scripts/pcoder doctor
+```
+3. API-mode host-native launch checks with stubbed runners:
+```bash
+scripts/pcoder setup --codex-auth api --claude-auth api --windows-mode host-native --show
+OPENAI_API_KEY=pcoder-preflight PCODER_CODEX_CMD=node scripts/pcoder run codex --mode host-native -- --version
+ANTHROPIC_AUTH_TOKEN=pcoder-preflight PCODER_CLAUDE_CMD=node scripts/pcoder run claude --mode host-native -- --version
+```
 
 ## Incident Recovery
 - If runtime corruption is detected, clear `runtime/` and rerun bootstrap.
