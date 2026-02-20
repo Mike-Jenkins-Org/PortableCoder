@@ -67,10 +67,17 @@ function Invoke-Ssh {
     'bash', '-lc', $Script
   )
 
-  $output = & $SshExe @args 2>&1
-  return @{
-    status = $LASTEXITCODE
-    output = [string]::Join("`n", $output)
+  try {
+    $output = & $SshExe @args 2>&1
+    return @{
+      status = $LASTEXITCODE
+      output = [string]::Join("`n", $output)
+    }
+  } catch {
+    return @{
+      status = 1
+      output = $_.Exception.Message
+    }
   }
 }
 
