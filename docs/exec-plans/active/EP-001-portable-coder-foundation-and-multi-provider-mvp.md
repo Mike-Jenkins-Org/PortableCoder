@@ -48,6 +48,8 @@ Initial user target providers/tools:
 - [x] (2026-02-20) Fix Windows smoke SSH probe command invocation so readiness check validates `echo vm-ready` output correctly
 - [x] (2026-02-20) Update Windows smoke SSH probe to pass remote commands directly (avoids PowerShell stdin encoding edge cases)
 - [x] (2026-02-20) Normalize Windows PowerShell native `ssh` stderr handling so host-key warnings do not abort readiness probes
+- [x] (2026-02-20) Add Windows VM acceleration override (`PCODER_VM_ACCEL_MODE`) to force TCG when WHPX guests fail to reach SSH readiness
+- [x] (2026-02-20) Add `smoke-check-tcg.cmd` helper for one-command Windows smoke validation in forced software mode
 - [ ] (2026-02-18) Document setup/runbook and close out EP-001
 
 ## Context and Orientation
@@ -131,6 +133,7 @@ Acceptance criteria for EP-001:
 - 2026-02-20: Passing `ssh ... bash -lc <script>` as split args can drop expected output semantics; piping script content to `bash -s` is safer for deterministic probing.
 - 2026-02-20: Piping probe scripts into native `ssh` from Windows PowerShell can hit stdin encoding edge cases; direct remote command args are more reliable.
 - 2026-02-20: In Windows PowerShell, native stderr can surface as terminating `ErrorRecord` when `$ErrorActionPreference='Stop'`, so probe wrappers must normalize stderr explicitly.
+- 2026-02-20: Some hosts can launch QEMU with WHPX but still fail guest SSH readiness; explicit TCG override is needed for deterministic recovery.
 
 ## Decision Log
 - 2026-02-18: Adopt harness-first planning model before implementation.

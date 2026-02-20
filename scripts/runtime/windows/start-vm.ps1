@@ -191,6 +191,11 @@ if (Test-Path $vmPid) {
 
 Stop-CloudInitServer
 
+$requestedAccelMode = if ($env:PCODER_VM_ACCEL_MODE) { "$($env:PCODER_VM_ACCEL_MODE)".ToLowerInvariant() } else { 'auto' }
+if ($requestedAccelMode -ne 'auto' -and $requestedAccelMode -ne 'whpx' -and $requestedAccelMode -ne 'tcg') {
+  throw "Invalid PCODER_VM_ACCEL_MODE '$requestedAccelMode'. Expected one of: auto, whpx, tcg."
+}
+
 $requestedPortRaw = $env:PCODER_VM_SSH_PORT
 $sshPort = 0
 if ($requestedPortRaw) {
@@ -219,6 +224,32 @@ $baseArgs = @(
   '-device', 'virtio-net-pci,netdev=net0',
   '-smbios', "type=1,serial=ds=nocloud-net;s=http://10.0.2.2:$cloudInitPort/"
 )
+
+if ($requestedAccelMode -eq 'whpx') {
+  $forcedWhpx = Start-QemuAttempt -Mode 'accelerated-whpx' -AccelerationArgs @('-accel', 'whpx') -BaseArgs $baseArgs -QemuBinary $qemuExe -LogPath $vmLog
+  if ($forcedWhpx) {
+    $forcedWhpx.Id | Out-File -Encoding ascii -FilePath $vmPid
+    'accelerated-whpx' | Out-File -Encoding ascii -FilePath $vmMode
+    $sshPort | Out-File -Encoding ascii -FilePath $sshPortFile
+    Write-Host "VM started in forced accelerated mode (whpx). PID: $($forcedWhpx.Id). SSH port: $sshPort"
+    exit 0
+  }
+  Stop-CloudInitServer
+  throw "Failed to start VM in forced whpx mode. Check log: $vmLog"
+}
+
+if ($requestedAccelMode -eq 'tcg') {
+  $forcedTcg = Start-QemuAttempt -Mode 'portable-forced-tcg' -AccelerationArgs @('-accel', 'tcg') -BaseArgs $baseArgs -QemuBinary $qemuExe -LogPath $vmLog
+  if ($forcedTcg) {
+    $forcedTcg.Id | Out-File -Encoding ascii -FilePath $vmPid
+    'portable-fallback-tcg' | Out-File -Encoding ascii -FilePath $vmMode
+    $sshPort | Out-File -Encoding ascii -FilePath $sshPortFile
+    Write-Host "VM started in forced portable mode (tcg). PID: $($forcedTcg.Id). SSH port: $sshPort"
+    exit 0
+  }
+  Stop-CloudInitServer
+  throw "Failed to start VM in forced tcg mode. Check log: $vmLog"
+}
 
 $accelerated = Start-QemuAttempt -Mode 'accelerated-whpx' -AccelerationArgs @('-accel', 'whpx') -BaseArgs $baseArgs -QemuBinary $qemuExe -LogPath $vmLog
 if ($accelerated) {

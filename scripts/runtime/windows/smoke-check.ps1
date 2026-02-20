@@ -232,7 +232,11 @@ try {
       $lastDetail = '(no ssh output)'
     }
     $lastDetail = $lastDetail -replace '\r?\n', ' '
-    throw "Timed out waiting for VM SSH readiness after ${SshReadyTimeoutSeconds}s. Last output: $lastDetail"
+    $hint = ''
+    if ($mode -eq 'accelerated-whpx') {
+      $hint = " Hint: retry with `$env:PCODER_VM_ACCEL_MODE='tcg' to force software virtualization."
+    }
+    throw "Timed out waiting for VM SSH readiness after ${SshReadyTimeoutSeconds}s. Last output: $lastDetail$hint"
   }
 
   if (-not $SkipToolChecks) {

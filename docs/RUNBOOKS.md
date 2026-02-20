@@ -53,6 +53,7 @@ Backend spec:
 - Start VM implementation: `scripts/runtime/windows/start-vm.ps1`
 - Stop VM: `scripts/runtime/windows/stop-vm.cmd`
 - Smoke checklist: `scripts/runtime/windows/smoke-check.cmd`
+- Smoke checklist (force TCG): `scripts/runtime/windows/smoke-check-tcg.cmd`
 
 ## Linux-Portable Run Flow
 1. `pcoder` starts/ensures VM via `start-vm.cmd`.
@@ -60,6 +61,11 @@ Backend spec:
 3. Project is copied into guest over SCP.
 4. Tool command runs over SSH in guest project directory.
 5. Project is copied back to host after run (unless `--no-sync-back`).
+
+Acceleration override (Windows troubleshooting):
+- `PCODER_VM_ACCEL_MODE=auto` (default): try WHPX then fallback to TCG if launch fails.
+- `PCODER_VM_ACCEL_MODE=whpx`: force WHPX only.
+- `PCODER_VM_ACCEL_MODE=tcg`: force software virtualization when WHPX boot/SSH is unreliable.
 
 ## Auth Operations
 - Show auth modes and portable auth paths: `pcoder auth status`
